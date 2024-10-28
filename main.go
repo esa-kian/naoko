@@ -9,6 +9,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// ReportRequest holds the data needed to generate a report
+type ReportRequest struct {
+	Query string `json:"query"`
+}
+
+// Database connection request structure
 type ConnectRequest struct {
 	DBType   string `json:"db_type"`
 	Host     string `json:"host"`
@@ -37,9 +43,22 @@ func ConnectDatabase(w http.ResponseWriter, r *http.Request) {
 }
 
 func GenerateReport(w http.ResponseWriter, r *http.Request) {
-	// Placeholder for report generation logic
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Report generated successfully"))
+	var req ReportRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	results, err := services.GenerateReport(req.Query)
+	if err != nil {
+		http.Error(w, "Failed to generate report: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(results); err != nil {
+		http.Error(w, "Failed to encode response: "+err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func main() {
