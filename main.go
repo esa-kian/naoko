@@ -70,7 +70,7 @@ func main() {
 	r.HandleFunc("/report", GenerateReport).Methods("POST")
 
 	// Set up the HTTP server
-	log.Println("Starting server on :8080")
+	log.Println("Starting server on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Fatal(err)
 	}
